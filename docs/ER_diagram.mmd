@@ -1,0 +1,57 @@
+erDiagram
+    scenario ||--|| battery_config : "1:1 battery"
+    scenario ||--|{ hourly_input : "24 hours"
+    scenario ||--|{ operator_note : "1-3 notes"
+    operator_note ||--|| directive : "1 directive per note"
+    directive_type ||--o{ directive : "type"
+    directive ||--o{ directive_hour : "applicable hours"
+    scenario ||--o{ plan : "several plans"
+    plan ||--|{ hourly_plan : "24 rows"
+    hourly_plan }o..o{ plan_audit : "trigger log"
+    scenario { varchar scenario_id PK
+              varchar label
+              enum source }
+    battery_config { varchar scenario_id PK,FK
+              decimal capacity_kwh
+              decimal initial_energy_kwh
+              decimal minimum_energy_kwh
+              decimal max_charge_kwh_per_hour
+              decimal max_discharge_kwh_per_hour }
+    hourly_input { varchar scenario_id PK,FK
+              tinyint hour_no PK
+              decimal demand_kwh
+              decimal solar_kwh
+              decimal tariff_bdt_per_kwh }
+    operator_note { int note_id PK
+              varchar scenario_id FK
+              tinyint note_index
+              varchar note_text }
+    directive_type { varchar type_code PK
+              varchar description
+              varchar param_name }
+    directive { int directive_id PK
+              int note_id FK
+              varchar type_code FK
+              tinyint applies
+              decimal factor
+              decimal minimum_energy_kwh
+              decimal max_grid_kwh }
+    directive_hour { int directive_id PK,FK
+              tinyint hour_no PK }
+    plan { int plan_id PK
+              varchar scenario_id FK
+              varchar plan_name
+              varchar plan_summary }
+    hourly_plan { int plan_id PK,FK
+              tinyint hour_no PK
+              decimal grid_kwh
+              decimal solar_used_kwh
+              enum battery_action
+              decimal battery_kwh
+              decimal energy_after_kwh }
+    plan_audit { bigint audit_id PK
+              int plan_id
+              tinyint hour_no
+              enum action_type
+              decimal old_grid_kwh
+              decimal new_grid_kwh }

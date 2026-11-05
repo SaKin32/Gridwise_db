@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GridWise Database Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --stage:#dcdde3; --bg:#f6f7fb; --card:#ffffff; --card2:#f2f3f9; --ink:#12121c; --muted:#8a8fa5; --line:#eceef5;
+    --accent:#6b5bd6; --accent2:#8f7cf0; --soft:#efecff;
+    --ok:#12a150; --okbg:#e2f6ea; --bad:#d92d20; --badbg:#fde8e6;
+    --solar:#e0a100; --grid:#6b5bd6; --batt:#1f9d6b; --tariff:#d4483b; --demand:#9aa1b2;
+    --w-nocharge:#f59e0b33; --w-nodis:#8b5cf633; --w-cap:#ef444433; --w-res:#0ea5e933; --w-sol:#eab30844;
+    --cshadow:0 14px 34px -20px rgba(70,55,150,.28); --rw:84px;
+    --disp:"Space Grotesk","Segoe UI",system-ui,sans-serif;
+  }
+  html[data-theme=dark]{
+    --stage:#050609; --bg:#0d0f15; --card:#161922; --card2:#1e222d; --ink:#eef0f7; --muted:#8e95aa; --line:#242836;
+    --accent:#8b7bff; --accent2:#a89bff; --soft:#221f3f;
+    --ok:#4ade80; --okbg:#12301f; --bad:#ff8a80; --badbg:#3a1714;
+    --solar:#f2c14e; --grid:#8b7bff; --batt:#3ddc97; --tariff:#ff7b6b; --demand:#8f9bad;
+    --cshadow:none; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--stage);color:var(--ink);font:14.5px/1.5 "DM Sans","Noto Sans Bengali","Segoe UI",system-ui,sans-serif;transition:background .25s,color .25s}
+  body.wide{--rw:236px}
+  svg.i{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  h1,h2,.kpi b,.bn,.dn{font-family:var(--disp)}
+
+  /* ---------- frame ---------- */
+  .frame{max-width:1560px;margin:18px auto;background:var(--bg);border-radius:46px;padding:22px 28px 44px 22px;display:grid;
+    grid-template-columns:var(--rw) minmax(0,1fr);gap:30px;box-shadow:0 40px 90px -30px rgba(20,20,50,.35);transition:grid-template-columns .25s ease,background .25s}
+  .rail{position:sticky;top:28px;align-self:start;height:calc(100vh - 56px);min-height:520px;display:flex;flex-direction:column;gap:14px;width:var(--rw);transition:width .25s ease;z-index:30}
+  .logoC{flex:none;height:84px;border-radius:42px;background:#000;color:#fff;display:flex;align-items:center;padding:0 22px;overflow:hidden;white-space:nowrap}
+  html[data-theme=dark] .logoC,html[data-theme=dark] .pill{border:1px solid var(--line)}
+  .logoC svg{width:40px;height:40px;flex:none;fill:#fff;stroke:none}
+  .bn{font-size:19px;font-weight:700;margin-left:14px;letter-spacing:-.01em}
+  .pill{flex:1;background:#000;border-radius:42px;padding:14px 12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 24px 40px -22px rgba(0,0,0,.55);min-height:0}
+  .sec{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6f7384;padding:6px 14px 0;white-space:nowrap;overflow:hidden;height:24px}
+  body:not(.wide) .sec{opacity:0;height:0;padding:0}
+  nav{display:flex;flex-direction:column;gap:8px}
+  .nb{position:relative;display:flex;align-items:center;width:100%;height:60px;padding:0 20px;border:0;border-radius:30px;background:transparent;color:#bfc3d1;cursor:pointer;font:inherit;font-weight:500;white-space:nowrap;text-align:left;transition:background .18s,color .18s,transform .18s}
+  .nb:hover{background:#1c1c24;color:#fff}
+  .nb.on{background:#fff;color:#000;box-shadow:0 10px 24px -10px rgba(255,255,255,.35)}
+  .nl{margin-left:14px;transition:opacity .2s}
+  body:not(.wide) .nl{margin:0;width:0;opacity:0;overflow:hidden}
+  .tools{margin-top:auto;display:flex;flex-direction:column;gap:8px;border-top:1px solid #23232b;padding-top:12px}
+  [data-tip]{position:relative}
+  [data-tip]::after{content:attr(data-tip);position:absolute;pointer-events:none;opacity:0;transition:opacity .15s .1s;z-index:60;white-space:nowrap;
+    background:#111;color:#fff;font-size:12px;font-weight:500;padding:6px 11px;border-radius:9px;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+  .rail [data-tip]::after{left:calc(100% + 14px);top:50%;transform:translateY(-50%)}
+  body.wide .rail [data-tip]::after{display:none}
+  .head [data-tip]::after{top:calc(100% + 8px);right:0}
+  [data-tip]:hover::after{opacity:1}
+
+  /* ---------- header ---------- */
+  .main{min-width:0}
+  .head{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;padding:8px 0 22px}
+  h1{font-size:34px;font-weight:700;margin:0;letter-spacing:-.025em;line-height:1.1}
+  .sub{margin:6px 0 0;color:var(--muted);font-size:13.5px;max-width:560px}
+  .acts{display:flex;gap:12px;align-items:center}
+  .search{display:flex;align-items:center;gap:10px;height:52px;width:300px;padding:0 18px;background:var(--card);border-radius:999px;box-shadow:var(--cshadow);border:1px solid var(--line);color:var(--muted)}
+  .search input{flex:1;min-width:0;border:0;background:transparent;padding:0;height:100%;border-radius:0;font-size:14px}
+  .search kbd{font:600 11px var(--disp);background:var(--card2);color:var(--muted);padding:3px 8px;border-radius:7px}
+  .cb{width:52px;height:52px;display:grid;place-items:center;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:50%;cursor:pointer;box-shadow:var(--cshadow);transition:transform .15s,color .15s}
+  .cb:hover{transform:translateY(-2px);color:var(--accent)}
+  .cb.spin svg{animation:sp .6s linear}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .ic-moon{display:none} html[data-theme=dark] .ic-moon{display:block} html[data-theme=dark] .ic-sun{display:none}
+  #apistatus{display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 18px;border-radius:999px;background:var(--card);border:1px solid var(--line);box-shadow:var(--cshadow);font-size:13px;font-weight:600;color:var(--muted)}
+  #apistatus::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--muted)}
+  #apistatus.ok{color:var(--ok);background:var(--card)} #apistatus.ok::before{background:var(--ok);box-shadow:0 0 0 4px var(--okbg)}
+  #apistatus.bad{color:var(--bad);background:var(--card)} #apistatus.bad::before{background:var(--bad);box-shadow:0 0 0 4px var(--badbg)}
+  .hint{display:flex;gap:10px;align-items:flex-start;background:var(--soft);color:var(--ink);border-radius:18px;padding:11px 16px;font-size:13px;margin-bottom:20px}
+  .hint svg{color:var(--accent);margin-top:1px}
+  section{animation:fi .35s ease}
+  @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:22px 26px;margin-bottom:20px;box-shadow:var(--cshadow)}
+  .ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  h2{font-size:19px;font-weight:700;margin:0 0 10px;letter-spacing:-.01em}
+  .ch h2{margin:0}
+  h3{font-size:12px;margin:20px 0 8px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+  .more{width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+  .more:hover{background:var(--card2);color:var(--ink)}
+  .card[data-srcs] .src{display:none} .card[data-srcs].show .src{display:block}
+  .dgrid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:20px;align-items:start}
+  .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:20px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:20px 22px;box-shadow:var(--cshadow);transition:transform .18s}
+  .kpi:hover{transform:translateY(-3px)}
+  .kic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:var(--c);box-shadow:0 12px 22px -8px var(--c);margin-bottom:22px}
+  .kpi span{display:block;color:var(--muted);font-size:12.5px}
+  .kpi b{display:block;font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+  .kpi em{font-style:normal;font-size:12.5px;color:var(--ok);font-weight:600}
+  .src{color:var(--muted);font-size:12px;margin-top:10px}
+  code{background:var(--card2);padding:1px 7px;border-radius:7px;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;position:sticky;top:0;background:var(--card)}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  tr.click{cursor:pointer;transition:background .12s} tr.click:hover{background:var(--card2)}
+  .scroll{overflow:auto;max-height:440px;border-radius:12px}
+  .badge{display:inline-block;padding:3px 11px;border-radius:99px;font-size:12px;background:var(--card2);color:var(--muted)}
+  .badge.ok{background:var(--okbg);color:var(--ok)} .badge.bad{background:var(--badbg);color:var(--bad)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .chip{background:var(--card2);border-radius:999px;padding:5px 14px;font-size:13px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  button.btn{border:0;background:var(--card2);color:var(--ink);padding:10px 18px;border-radius:999px;cursor:pointer;font:inherit;font-weight:500;transition:transform .12s,background .12s}
+  button.btn:hover{transform:translateY(-1px);background:var(--soft)}
+  button.btn.primary{background:#000;color:#fff} html[data-theme=dark] button.btn.primary{background:var(--accent);color:#fff}
+  button.btn.sel{outline:2px solid var(--accent);background:var(--soft)}
+  input,select,textarea{font:inherit;color:var(--ink);background:var(--card2);border:1px solid transparent;border-radius:999px;padding:10px 16px;outline:none;transition:border-color .15s}
+  textarea{border-radius:20px}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  textarea{width:100%;min-height:290px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+  .bar{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:13px}
+  .bar .lb{flex:0 0 150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar .tr{flex:1;background:var(--card2);border-radius:99px;height:18px;position:relative}
+  .bar .fl{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .7s ease}
+  .bar .vl{flex:0 0 74px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:10px}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:6px;vertical-align:-1px}
+  svg text{fill:var(--muted);font-size:10px}
+  .msg{margin-top:12px;padding:12px 14px;border-radius:14px;font-size:13.5px;white-space:pre-wrap}
+  .msg.ok{background:var(--okbg);color:var(--ok)} .msg.bad{background:var(--badbg);color:var(--bad)}
+  .hl-nc{background:var(--w-nocharge)} .hl-nd{background:var(--w-nodis)} .hl-cap{background:var(--w-cap)} .hl-res{background:var(--w-res)}
+  .hidden{display:none}
+  /* donut */
+  .donut{display:grid;place-items:center;padding:4px 0 10px}
+  .donut svg{width:210px;height:210px;filter:drop-shadow(0 16px 20px rgba(107,91,214,.25))}
+  svg text.dn{fill:var(--ink);font-size:30px;font-weight:700} svg text.dl{font-size:12px}
+  .dleg{display:grid;grid-template-columns:1fr;gap:10px;margin-top:6px}
+  .dleg div{display:flex;align-items:center;gap:9px;font-size:12.5px;min-width:0}
+  .dleg i{width:4px;height:30px;border-radius:4px;flex:none}
+  .dleg span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+  .dleg b{font-family:var(--disp)}
+  /* quick actions */
+  .qa{display:flex;align-items:center;gap:14px;width:100%;padding:12px;border:0;background:transparent;border-radius:18px;cursor:pointer;color:var(--ink);font:inherit;text-align:left;transition:background .15s}
+  .qa:hover{background:var(--card2)}
+  .qa .qi{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--soft);color:var(--accent);flex:none}
+  .qa b{display:block;font-size:14px} .qa small{color:var(--muted);font-size:12px}
+  .qa .go{margin-left:auto;color:var(--muted)}
+
+  /* ---------- guide dialog ---------- */
+  dialog{width:min(700px,94vw);max-height:86vh;border:0;border-radius:30px;background:var(--card);color:var(--ink);padding:0;box-shadow:0 40px 90px -20px rgba(0,0,0,.5)}
+  dialog::backdrop{background:rgba(5,8,14,.55);backdrop-filter:blur(5px)}
+  .dh{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card)}
+  .dh h2{margin:0;font-size:20px}
+  .dh .cb{width:40px;height:40px;box-shadow:none}
+  .db{padding:6px 24px 22px;overflow:auto;max-height:calc(86vh - 70px)}
+  .g{display:grid;grid-template-columns:42px 1fr;gap:14px;padding:13px 0;border-bottom:1px dashed var(--line)}
+  .g:last-child{border:0}
+  .g .gi{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--soft);color:var(--accent)}
+  .g b{display:block;font-size:14px} .g p{margin:2px 0 0;color:var(--muted);font-size:13px}
+  .gh{margin:16px 0 0;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1180px){.dgrid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:860px){
+    body{background:var(--bg)}
+    body.wide{--rw:84px}
+    .frame{margin:0;border-radius:0;padding:16px 14px 110px;grid-template-columns:1fr;box-shadow:none}
+    .rail{position:fixed;left:12px;right:12px;bottom:12px;top:auto;width:auto;height:70px;min-height:0;flex-direction:row;z-index:40}
+    .logoC,.sec,.tools{display:none}
+    .pill{flex-direction:row;padding:7px;border-radius:35px;align-items:center}
+    nav{flex-direction:row;width:100%;gap:4px}
+    .nb{flex:1;justify-content:center;padding:0;height:56px}
+    .nl{display:none}
+    .rail [data-tip]::after{display:none}
+    h1{font-size:26px} .search{width:100%} .acts{width:100%;flex-wrap:wrap}
+    .kpis{grid-template-columns:1fr 1fr;gap:12px} .kpi b{font-size:26px}
+    .bar .lb{flex-basis:96px}
+  }
+</style>
+<script>
+  try{document.documentElement.dataset.theme=localStorage.getItem('gw-theme2')||'light';
+      if(localStorage.getItem('gw-wide')==='1')document.addEventListener('DOMContentLoaded',()=>document.body.classList.add('wide'));}catch(e){document.documentElement.dataset.theme='light'}
+</script>
+</head>
+<body>
+<div class="frame">
+  <aside class="rail">
+    <div class="logoC"><svg viewBox="0 0 24 24"><path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.7z"/></svg><span class="bn nl">GridWise</span></div>
+    <div class="pill">
+      <div class="sec">Main menu</div>
+      <nav>
+        <button class="nb on" data-tab="dash" data-tip="Dashboard: KPIs and charts"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg><span class="nl">Dashboard</span></button>
+        <button class="nb" data-tab="list" data-tip="Scenario list: browse and open cases"><svg class="i" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg><span class="nl">Scenario list</span></button>
+        <button class="nb" data-tab="import" data-tip="Import a case via API (JSON)"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span class="nl">Import a case</span></button>
+      </nav>
+      <div class="tools">
+        <div class="sec">Other</div>
+        <button class="nb" id="btn-guide" data-tip="Guide: what each button does"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg><span class="nl">How it works</span></button>
+        <button class="nb" id="btn-theme" data-tip="Switch light / dark mode"><svg class="i ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i ic-moon" viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg><span class="nl">Light / Dark</span></button>
+        <button class="nb" id="btn-collapse" data-tip="Expand / collapse menu"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg><span class="nl">Collapse menu</span></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="head">
+      <div>
+        <h1 id="pagetitle">Dashboard</h1>
+        <p class="sub" id="pagesub"></p>
+      </div>
+      <div class="acts">
+        <label class="search" data-tip="Type an id or label and press Enter: opens the Scenario list filtered"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="gsearch" placeholder="Search scenario..." autocomplete="off"><kbd>Ctrl K</kbd></label>
+        <button class="cb" id="btn-refresh" data-tip="Reload data of this page"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg></button>
+        <span id="apistatus" class="badge" title="Result of the API health check (database version)">API...</span>
+      </div>
+    </div>
+<main>
+<div class="hint" id="hint"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div id="hinttxt"></div></div>
+
+<section id="tab-dash">
+  <div class="dgrid">
+    <div>
+      <div class="kpis" id="kpis"></div>
+      <div class="card" data-srcs>
+        <div class="ch"><h2>Average saving by plan type (%)</h2><button class="more" title="Show / hide the SQL source"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg></button></div>
+        <div id="ch-plan"></div>
+        <div class="src">Source: view <code>v_plan_comparison</code> (compared with the no-battery cost)</div>
+      </div>
+      <div class="card" data-srcs>
+        <div class="ch"><h2>Cost comparison of the 10 sample cases (BDT)</h2><button class="more" title="Show / hide the SQL source"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg></button></div>
+        <div id="ch-sample"></div>
+        <div class="legend"><span><i style="background:var(--demand)"></i>No battery (hypothetical)</span><span><i style="background:var(--accent)"></i>reference_optimal</span></div>
+        <div class="src">Source: <code>v_plan_totals</code> and <code>v_no_battery_cost</code>. Where a grid cap or reserve applies, no baseline could be created because the trigger blocked it.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" data-srcs>
+        <div class="ch"><h2>Directive usage</h2><button class="more" title="Show / hide the SQL source"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg></button></div>
+        <div id="ch-dir"></div>
+        <div class="src">Source: <code>directive_type LEFT JOIN directive</code></div>
+      </div>
+      <div class="card">
+        <div class="ch"><h2>Quick actions</h2></div>
+        <button class="qa" data-go="list"><span class="qi"><svg class="i" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg></span><span><b>Scenario list</b><small>Browse and open any case</small></span><span class="go"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+        <button class="qa" data-go="import"><span class="qi"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span><span><b>Import a case</b><small>Insert JSON, test the triggers</small></span><span class="go"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+        <button class="qa" id="qa-guide"><span class="qi"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></span><span><b>How it works</b><small>What every button does</small></span><span class="go"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-list" class="hidden">
+  <div class="card">
+    <div class="row" style="margin-bottom:10px">
+      <select id="f-source"><option value="">All sources</option><option value="public_sample">public_sample</option><option value="synthetic">synthetic</option><option value="user">user</option></select>
+      <input id="f-text" placeholder="Search id or label..." size="26">
+      <span id="f-count" class="src"></span>
+    </div>
+    <div class="scroll"><table id="tbl-scn"><thead><tr><th>Scenario</th><th>Label</th><th>Source</th><th class="n">Notes</th><th class="n">Active directives</th><th class="n">Plans</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+    <div class="src">Source: view <code>v_scenario_overview</code>. Click a row to see the details.</div>
+  </div>
+  <div id="detail"></div>
+</section>
+
+<section id="tab-import" class="hidden">
+  <div class="card">
+    <h2>Insert a full case into the database as JSON</h2>
+    <p class="src" style="margin-top:0">POST <code>api/index.php?action=import_case</code> inserts everything in one transaction. If a plan is supplied the triggers validate every hour; if any rule is broken the whole insert is rolled back.
+       If <code>directive_interpretation</code> is omitted the notes are only stored and no rule is applied.</p>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn" id="btn-tpl" title="Fills the box with a valid example case">Build a template</button>
+      <button class="btn" id="btn-tpl-bad" title="Fills the box with a case that breaks a rule, to see the trigger roll back">Template with a bad plan (trigger test)</button>
+      <button class="btn primary" id="btn-import" title="POST the JSON to the API (import_case)">Import</button>
+    </div>
+    <textarea id="imp-text" spellcheck="false" placeholder="{ &quot;scenario_id&quot;: &quot;MY-001&quot;, ... }"></textarea>
+    <div id="imp-msg"></div>
+  </div>
+</section>
+
+</main>
+  </div>
+</div>
+
+<dialog id="guide">
+  <div class="dh"><h2>How this dashboard works</h2><button class="cb" id="guide-x" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="db">
+    <div class="gh">Left menu (black bar)</div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg></div><div><b>Dashboard</b><p>Calls <code>health</code> and <code>stats</code>. Shows KPI cards, directive usage donut, average saving per plan type and the 10-sample cost comparison.</p></div></div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg></div><div><b>Scenario list</b><p>Calls <code>scenarios</code>. Filter by source or search by id/label. Click a row: calls <code>scenario</code> and opens notes, rules chart and plans.</p></div></div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div><div><b>Import a case</b><p>Paste JSON and press Import: <code>import_case</code> inserts everything in one transaction. A broken rule rolls it all back.</p></div></div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></div><div><b>Light / Dark</b><p>Switches the theme. It is saved in your browser.</p></div></div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg></div><div><b>Collapse menu</b><p>Switches the bar between icons only and icons + labels.</p></div></div>
+    <div class="gh">Top bar</div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div><div><b>Search (Ctrl K)</b><p>Type an id or label and press Enter. It opens the Scenario list with that filter applied.</p></div></div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg></div><div><b>Refresh</b><p>Reloads the data of the page you are on.</p></div></div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div><div><b>API badge</b><p>Green = API and DB reachable (shows DB version). Red = API problem.</p></div></div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg></div><div><b>Dots on a card</b><p>Show / hide the SQL view or table that card reads from.</p></div></div>
+    <div class="gh">Inside a scenario</div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg></div><div><b>Plan buttons</b><p>Each plan loads <code>plan</code> + <code>validate</code>: totals, hourly chart, table and rule check.</p></div></div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div><div><b>+ Create baseline plan</b><p>Calls <code>baseline</code>: makes a no-battery plan. If a trigger blocks it, the reason is shown.</p></div></div>
+    <div class="g"><div class="gi"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div><div><b>Delete this case</b><p>Calls <code>delete_scenario</code>. Only visible for cases with source = user.</p></div></div>
+  </div>
+</dialog>
+<script>
+const API = 'api/index.php';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = (x, d = 2) => x === null || x === undefined ? '-' : Number(x).toLocaleString('en-US', {maximumFractionDigits: d});
+
+async function api(action, params = {}, body = null) {
+  const qs = new URLSearchParams({action, ...params}).toString();
+  const opt = body ? {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)} : {};
+  const r = await fetch(`${API}?${qs}`, opt);
+  const j = await r.json().catch(() => ({error: 'Invalid response'}));
+  return {status: r.status, ok: r.ok, data: j};
+}
+
+/* ---------- tabs / layout ---------- */
+const TABS = {
+  dash:   {t: 'Dashboard', s: 'Welcome to GridWise. A live overview of the database: counts, savings and directive usage.',
+           h: 'KPI cards and charts load automatically from the <code>stats</code> API. Use the refresh icon (top right) to reload them.'},
+  list:   {t: 'Scenario list', s: 'Browse every scenario and open its notes, rules and plans.',
+           h: 'Filter by source or search by id/label, then <b>click a row</b> to open its details, plans and hourly charts below the table.'},
+  import: {t: 'Import a case (API)', s: 'Insert a full case into the database as JSON.',
+           h: 'Press <b>Build a template</b>, edit the JSON, then <b>Import</b>. Triggers validate every hour; any broken rule rolls the whole insert back.'}
+};
+let curTab = 'dash';
+function go(tab) {
+  curTab = tab;
+  document.querySelectorAll('nav .nb').forEach(x => x.classList.toggle('on', x.dataset.tab === tab));
+  ['dash', 'list', 'import'].forEach(t => $('#tab-' + t).classList.toggle('hidden', t !== tab));
+  $('#pagetitle').textContent = TABS[tab].t; $('#pagesub').textContent = TABS[tab].s; $('#hinttxt').innerHTML = TABS[tab].h;
+  if (tab === 'list' && !scenarios.length) loadList();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+document.querySelectorAll('nav .nb').forEach(b => b.onclick = () => go(b.dataset.tab));
+
+$('#btn-collapse').onclick = () => { const w = document.body.classList.toggle('wide'); try { localStorage.setItem('gw-wide', w ? '1' : '0'); } catch (e) {} };
+$('#btn-theme').onclick = () => {
+  const d = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = d; try { localStorage.setItem('gw-theme2', d); } catch (e) {}
+};
+$('#btn-refresh').onclick = async () => {
+  const b = $('#btn-refresh'); b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin');
+  if (curTab === 'dash') await loadDash(); else if (curTab === 'list') await loadList();
+};
+$('#btn-guide').onclick = () => $('#guide').showModal();
+$('#qa-guide').onclick = () => $('#guide').showModal();
+document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+document.querySelectorAll('.more').forEach(b => b.onclick = () => b.closest('.card').classList.toggle('show'));
+$('#gsearch').onkeydown = e => { if (e.key === 'Enter') { $('#f-text').value = e.target.value; go('list'); if (scenarios.length) renderList(); } };
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#gsearch').focus(); } });
+$('#guide-x').onclick = () => $('#guide').close();
+$('#guide').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+
+/* ---------- dashboard ---------- */
+function barList(el, rows, label, value, fmt = v => num(v)) {
+  const max = Math.max(...rows.map(r => Number(r[value])), 1);
+  el.innerHTML = rows.map(r => `<div class="bar"><div class="lb" title="${esc(r[label])}">${esc(r[label])}</div>
+    <div class="tr"><div class="fl" style="width:${(100 * Number(r[value]) / max).toFixed(1)}%"></div></div>
+    <div class="vl">${fmt(r[value])}</div></div>`).join('');
+}
+
+const PAL = ['#6b5bd6', '#fbbf6a', '#f9a8d4', '#4f9bff', '#34d399', '#fb923c', '#a3a8b8', '#c084fc'];
+function donut(el, rows, label, value) {
+  const tot = rows.reduce((a, r) => a + Number(r[value]), 0), R = 70, C = 2 * Math.PI * R; let off = 0, seg = '';
+  rows.forEach((r, i) => {
+    const len = (tot ? Number(r[value]) / tot : 0) * C, d = Math.max(len - 3, 0);
+    if (len > 0) seg += `<circle cx="100" cy="100" r="${R}" fill="none" stroke="${PAL[i % PAL.length]}" stroke-width="26" stroke-dasharray="${d} ${C - d}" stroke-dashoffset="${-off}" transform="rotate(-90 100 100)"><title>${esc(r[label])}: ${num(r[value], 0)}</title></circle>`;
+    off += len;
+  });
+  el.innerHTML = `<div class="donut"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--card2)" stroke-width="26"/>${seg}
+    <text x="100" y="92" text-anchor="middle" class="dl">Total</text><text x="100" y="120" text-anchor="middle" class="dn">${num(tot, 0)}</text></svg></div>
+    <div class="dleg">${rows.map((r, i) => `<div title="${esc(r[label])}"><i style="background:${PAL[i % PAL.length]}"></i><span>${esc(r[label])}</span><b>${num(r[value], 0)}</b></div>`).join('')}</div>`;
+}
+async function loadDash() {
+  const h = await api('health');
+  const st = $('#apistatus');
+  st.textContent = h.ok ? 'API ok | ' + String(h.data.db_version).split('-')[0] : 'API problem';
+  st.className = 'badge ' + (h.ok ? 'ok' : 'bad');
+  if (!h.ok) return;
+  const {data} = await api('stats');
+  const c = data.counts;
+  const KI = {
+    sc: '<path d="M12 3 2 8l10 5 10-5z"/><path d="M2 13l10 5 10-5"/>',
+    nt: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+    dr: '<path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+    pl: '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/>',
+    ok: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+    hr: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
+  const pct = Number(c.plans) ? Math.round(100 * c.valid_plans / c.plans) : 0;
+  const items = [['Scenarios', c.scenarios, 'sc', '#6b5bd6', ''], ['Operator notes', c.notes, 'nt', '#3b82f6', ''], ['Active directives', c.active_directives, 'dr', '#fb923c', ''],
+                 ['Plans', c.plans, 'pl', '#ec4899', ''], ['Valid plans', c.valid_plans + ' / ' + c.plans, 'ok', '#10b981', pct + '% valid'], ['Hourly plan rows', c.plan_rows, 'hr', '#eab308', '']];
+  $('#kpis').innerHTML = items.map(([k, v, i, col, em]) => `<div class="kpi"><div class="kic" style="--c:${col}"><svg class="i" viewBox="0 0 24 24">${KI[i]}</svg></div>
+    <span>${k}</span><b>${v}</b><em>${em || '&nbsp;'}</em></div>`).join('');
+  barList($('#ch-plan'), data.by_plan_type, 'plan_name', 'avg_saving_pct', v => num(v) + '%');
+  donut($('#ch-dir'), data.directive_types, 'type_code', 'used_times');
+  const mx = Math.max(...data.sample_comparison.map(r => Number(r.no_battery_cost)));
+  $('#ch-sample').innerHTML = data.sample_comparison.map(r => `
+    <div class="bar"><div class="lb">${esc(r.scenario_id)}</div>
+      <div class="tr" style="height:26px"><div class="fl" style="height:12px;width:${100 * r.no_battery_cost / mx}%;background:var(--demand)"></div>
+        <div class="fl" style="height:12px;width:${100 * r.reference_cost / mx}%"></div></div>
+      <div class="vl" style="flex-basis:150px">${num(r.no_battery_cost, 0)} -> ${num(r.reference_cost, 0)}</div></div>`).join('');
+}
+
+/* ---------- scenario list ---------- */
+let scenarios = [], current = null;
+async function loadList() {
+  const r = await api('scenarios');
+  scenarios = r.data;
+  renderList();
+}
+function renderList() {
+  const s = $('#f-source').value, t = $('#f-text').value.toLowerCase();
+  const rows = scenarios.filter(x => (!s || x.source === s) && (!t || (x.scenario_id + ' ' + x.label).toLowerCase().includes(t)));
+  $('#f-count').textContent = rows.length + ' / ' + scenarios.length + ' shown';
+  $('#tbl-scn tbody').innerHTML = rows.map(x => `<tr class="click" data-id="${esc(x.scenario_id)}">
+    <td>${esc(x.scenario_id)}</td><td>${esc(x.label)}</td><td>${esc(x.source)}</td>
+    <td class="n">${x.notes_count}</td><td class="n">${x.active_directives}</td><td class="n">${x.plans_count}</td>
+    <td>${Number(x.invalid_plans) ? '<span class="badge bad">invalid plan</span>' : (Number(x.plans_count) ? '<span class="badge ok">OK</span>' : '-')}</td></tr>`).join('');
+}
+$('#f-source').onchange = renderList; $('#f-text').oninput = renderList;
+$('#tbl-scn tbody').onclick = e => { const tr = e.target.closest('tr'); if (tr) openScenario(tr.dataset.id); };
+
+/* ---------- SVG: hourly chart ---------- */
+function hourChart({bands, stacks, lines, leftMax, rightMax, rightLabel, leftLabel}) {
+  const W = 760, H = 250, m = {l: 44, r: 44, t: 10, b: 24}, iw = W - m.l - m.r, ih = H - m.t - m.b, bw = iw / 24;
+  const X = h => m.l + h * bw, YL = v => m.t + ih - ih * v / leftMax, YR = v => m.t + ih - ih * v / rightMax;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img">`;
+  for (let i = 0; i <= 4; i++) {
+    const y = m.t + ih * i / 4;
+    s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y}" y2="${y}" stroke="var(--line)"/>`;
+    s += `<text x="${m.l - 5}" y="${y + 3}" text-anchor="end">${num(leftMax * (4 - i) / 4, 0)}</text>`;
+    s += `<text x="${W - m.r + 5}" y="${y + 3}">${num(rightMax * (4 - i) / 4, 0)}</text>`;
+  }
+  s += `<text x="${m.l}" y="8">${leftLabel}</text><text x="${W - m.r}" y="8" text-anchor="end">${rightLabel}</text>`;
+  bands.forEach(b => s += `<rect x="${X(b.h)}" y="${m.t}" width="${bw}" height="${ih}" fill="${b.color}"/>`);
+  for (let h = 0; h < 24; h++) {
+    let acc = 0;
+    stacks.forEach(st => {
+      const v = Number(st.v[h]) || 0;
+      if (v > 0) s += `<rect x="${X(h) + bw * 0.16}" y="${YL(acc + v)}" width="${bw * 0.68}" height="${Math.max(0, YL(acc) - YL(acc + v))}" fill="${st.color}"><title>${st.name} ${h}:00 = ${num(v)}</title></rect>`;
+      acc += v;
+    });
+    s += `<text x="${X(h) + bw / 2}" y="${H - 8}" text-anchor="middle">${h}</text>`;
+  }
+  lines.forEach(l => {
+    const Y = l.right ? YR : YL;
+    const pts = l.v.map((v, h) => `${(X(h) + bw / 2).toFixed(1)},${Y(Number(v)).toFixed(1)}`).join(' ');
+    s += `<polyline points="${pts}" fill="none" stroke="${l.color}" stroke-width="2" ${l.dash ? 'stroke-dasharray="5 4"' : ''}${l.step ? '' : ''}/>`;
+  });
+  return s + '</svg>';
+}
+const legend = items => `<div class="legend">${items.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join('')}</div>`;
+
+/* ---------- scenario details ---------- */
+async function openScenario(id, planId) {
+  const {data: d, ok} = await api('scenario', {id});
+  if (!ok) return;
+  current = d;
+  const b = d.battery;
+  const typeColor = {no_charge_window: 'hl-nc', no_discharge_window: 'hl-nd', max_grid_window: 'hl-cap', minimum_battery_reserve: 'hl-res'};
+  const pid = planId || (d.plans.find(p => p.plan_name === 'reference_optimal') || d.plans[0] || {}).plan_id;
+  $('#detail').innerHTML = `
+  <div class="card">
+    <h2>${esc(d.scenario.scenario_id)} <span class="badge">${esc(d.scenario.source)}</span></h2>
+    <div>${esc(d.scenario.label)}</div>
+    <div class="chips">
+      <span class="chip">capacity ${num(b.capacity_kwh)} kWh</span><span class="chip">initial energy ${num(b.initial_energy_kwh)}</span>
+      <span class="chip">minimum ${num(b.minimum_energy_kwh)}</span><span class="chip">max charge/hour ${num(b.max_charge_kwh_per_hour)}</span>
+      <span class="chip">max discharge/hour ${num(b.max_discharge_kwh_per_hour)}</span>
+    </div>
+    <h3>Operator notes and interpretation (<code>v_directive_summary</code>)</h3>
+    <table><thead><tr><th>#</th><th>Note</th><th>Type</th><th>Hours</th><th>Value</th></tr></thead><tbody>
+      ${d.notes.map(n => `<tr><td>${n.note_index}</td><td>${esc(n.note_text)}</td><td><span class="badge">${esc(n.type_code ?? '-')}</span></td>
+        <td>${esc(n.hours_list ?? '')}</td><td>${esc(n.parameter_value ?? '')}</td></tr>`).join('')}
+    </tbody></table>
+    <h3>Inputs and rules (<code>v_hour_constraints</code>)</h3>
+    <div id="chart-in"></div>
+    ${legend([['var(--demand)', 'demand kWh'], ['var(--solar)', 'effective solar kWh'], ['var(--tariff)', 'tariff (right axis)'],
+              ['#f59e0b66', 'no_charge'], ['#8b5cf666', 'no_discharge'], ['#ef444466', 'grid cap'], ['#0ea5e966', 'reserve']])}
+  </div>
+  <div class="card">
+    <h2>Plans</h2>
+    <div class="row" id="plan-btns">
+      ${d.plans.map(p => `<button class="btn ${p.plan_id == pid ? 'sel' : ''}" data-pid="${p.plan_id}">${esc(p.plan_name)}
+        <span class="badge ${p.status === 'VALID' ? 'ok' : 'bad'}">${p.status}</span></button>`).join('') || '<span class="src">No plans</span>'}
+      <button class="btn primary" id="btn-base" title="Create a no-battery baseline plan for this case">+ Create baseline plan</button>
+      ${d.scenario.source === 'user' ? '<button class="btn" id="btn-del" title="Permanently delete this user case">Delete this case</button>' : ''}
+    </div>
+    <div id="plan-msg"></div>
+    <div id="plan-view"></div>
+  </div>`;
+  const mk = (cond) => d.hours.map((h, i) => cond(h) ? {h: i} : null).filter(Boolean);
+  const bands = [
+    ...mk(h => h.effective_solar_kwh < h.solar_kwh).map(x => ({...x, color: 'var(--w-sol)'})),
+    ...mk(h => h.no_charge == 1).map(x => ({...x, color: 'var(--w-nocharge)'})),
+    ...mk(h => h.no_discharge == 1).map(x => ({...x, color: 'var(--w-nodis)'})),
+    ...mk(h => h.max_grid_kwh !== null).map(x => ({...x, color: 'var(--w-cap)'})),
+    ...mk(h => Number(h.min_energy_kwh) > Number(b.minimum_energy_kwh)).map(x => ({...x, color: 'var(--w-res)'})),
+  ];
+  const col = k => d.hours.map(h => h[k]);
+  const mxL = Math.max(...col('demand_kwh').map(Number), ...col('solar_kwh').map(Number), 10) * 1.1;
+  const mxR = Math.max(...col('tariff_bdt_per_kwh').map(Number), 10) * 1.1;
+  $('#chart-in').innerHTML = hourChart({bands, stacks: [], leftMax: mxL, rightMax: mxR, leftLabel: 'kWh', rightLabel: 'BDT/kWh',
+    lines: [{v: col('demand_kwh'), color: 'var(--demand)'}, {v: col('effective_solar_kwh'), color: 'var(--solar)'}, {v: col('tariff_bdt_per_kwh'), color: 'var(--tariff)', right: true, dash: true}]});
+  $('#plan-btns').onclick = e => { const bt = e.target.closest('[data-pid]'); if (bt) openScenario(id, bt.dataset.pid); };
+  $('#btn-base').onclick = async () => {
+    const r = await api('baseline', {}, {scenario_id: id, plan_name: 'baseline_no_battery_' + Date.now().toString(36).slice(-4)});
+    if (r.ok) return openScenario(id);
+    $('#plan-msg').innerHTML = `<div class="msg bad">Blocked by the trigger/procedure (rolled back):\n${esc(r.data.message || r.data.error)}</div>`;
+  };
+  const del = $('#btn-del');
+  if (del) del.onclick = async () => { if (confirm('Delete this case?')) { await api('delete_scenario', {}, {scenario_id: id}); scenarios = []; $('#detail').innerHTML = ''; loadList(); } };
+  if (pid) showPlan(pid);
+  $('#detail').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+async function showPlan(pid) {
+  const {data: p} = await api('plan', {id: pid});
+  const R = p.rows, t = p.totals;
+  const v = await api('validate', {plan_id: pid});
+  const col = k => R.map(r => r[k]);
+  const dis = R.map(r => r.battery_action === 'discharge' ? Number(r.battery_kwh) : 0);
+  const mxL = Math.max(...R.map(r => Number(r.grid_kwh) + Number(r.solar_used_kwh) + dis[R.indexOf(r)]), 10) * 1.1;
+  const cap = Number(R[0].capacity_kwh);
+  const chart = hourChart({bands: [], leftMax: mxL, rightMax: cap, leftLabel: 'kWh supply', rightLabel: 'battery kWh',
+    stacks: [{name: 'solar', color: 'var(--solar)', v: col('solar_used_kwh')}, {name: 'battery', color: 'var(--batt)', v: dis}, {name: 'grid', color: 'var(--grid)', v: col('grid_kwh')}],
+    lines: [{v: col('energy_after_kwh'), color: 'var(--batt)', right: true}, {v: col('min_energy_kwh'), color: 'var(--bad)', right: true, dash: true}]});
+  $('#plan-view').innerHTML = `
+    <div class="chips">
+      <span class="chip">total grid ${num(t.total_grid_kwh)} kWh</span><span class="chip"><b>total cost ${num(t.total_cost_bdt)} BDT</b></span>
+      <span class="chip">peak grid ${num(t.peak_grid_kwh)} kWh</span>
+      <span class="badge ${v.data.valid ? 'ok' : 'bad'}">${v.data.valid ? 'all rules satisfied (sp_validate_plan)' : v.data.result.length + ' rule violation(s)'}</span>
+    </div>
+    ${v.data.valid ? '' : `<div class="msg bad">${v.data.result.map(x => esc(`hour ${x.hour_no ?? '-'}: ${x.rule_code} (${x.detail})`)).join('\n')}</div>`}
+    <div>${esc(p.summary || '')}</div>
+    ${chart}
+    ${legend([['var(--solar)', 'used solar'], ['var(--batt)', 'battery discharge / energy level (line)'], ['var(--grid)', 'grid'], ['var(--bad)', 'active minimum (dashed)']])}
+    <h3>Hourly table (<code>v_plan_rows</code>)</h3>
+    <div class="scroll"><table><thead><tr><th>Hour</th><th class="n">Tariff</th><th class="n">Demand</th><th class="n">Solar used / effective</th><th class="n">Grid</th><th>Battery</th><th class="n">Energy</th><th class="n">Cost</th><th>Rules</th></tr></thead><tbody>
+    ${R.map(r => {
+      const rules = [r.no_charge == 1 ? 'no-charge' : '', r.no_discharge == 1 ? 'no-discharge' : '', r.max_grid_kwh !== null ? 'cap ' + num(r.max_grid_kwh, 0) : '',
+                     Number(r.min_energy_kwh) > 0 ? 'min ' + num(r.min_energy_kwh, 0) : ''].filter(Boolean).join(', ');
+      return `<tr><td>${r.hour_no}</td><td class="n">${num(r.tariff_bdt_per_kwh)}</td><td class="n">${num(r.demand_kwh)}</td>
+        <td class="n">${num(r.solar_used_kwh)} / ${num(r.effective_solar_kwh)}</td><td class="n">${num(r.grid_kwh)}</td>
+        <td>${r.battery_action}${r.battery_action === 'idle' ? '' : ' ' + num(r.battery_kwh)}</td><td class="n">${num(r.energy_after_kwh)}</td>
+        <td class="n">${num(r.hour_cost_bdt, 0)}</td><td class="src">${esc(rules)}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
+/* ---------- import ---------- */
+function template(bad) {
+  const hours = [...Array(24).keys()].map(h => ({hour: h, demand_kwh: 100 + (h > 16 && h < 22 ? 80 : 0), solar_kwh: h > 7 && h < 16 ? 60 : 0, tariff_bdt_per_kwh: h > 16 && h < 22 ? 28 : 8}));
+  const plan = hours.map(h => { const su = Math.min(h.solar_kwh, h.demand_kwh);
+    return {hour: h.hour, grid_kwh: h.demand_kwh - su, solar_used_kwh: su, battery_action: 'idle', battery_kwh: 0, battery_energy_after_kwh: 100}; });
+  if (bad) { plan[18] = {hour: 18, grid_kwh: 130, solar_used_kwh: 0, battery_action: 'discharge', battery_kwh: 50, battery_energy_after_kwh: 50}; }
+  return {
+    scenario_id: 'MY-' + Math.floor(Math.random() * 9000 + 1000),
+    label: 'My own case',
+    operator_notes: ['Keep at least 80 kWh in the battery from 6 PM until 9 PM.', 'Grid import must not exceed 190 kWh from 7 PM until 9 PM.', 'The cafeteria menu changes tomorrow.'],
+    hours, battery: {capacity_kwh: 200, initial_energy_kwh: 100, minimum_energy_kwh: 30, max_charge_kwh_per_hour: 50, max_discharge_kwh_per_hour: 50},
+    directive_interpretation: [
+      {note_index: 0, applies: true, directive_type: 'minimum_battery_reserve', structured_adjustment: {hours: [18, 19, 20], minimum_energy_kwh: 80}, explanation: 'Reserve 80 kWh.'},
+      {note_index: 1, applies: true, directive_type: 'max_grid_window', structured_adjustment: {hours: [18, 19, 20], max_grid_kwh: 190}, explanation: 'Grid cap 190 kWh.'},
+      {note_index: 2, applies: false, directive_type: 'no_op', structured_adjustment: null, explanation: 'Irrelevant.'}],
+    plan_name: 'my_plan', plan_summary: 'Battery idle all day.', hourly_plan: plan
+  };
+}
+$('#btn-tpl').onclick = () => { $('#imp-text').value = JSON.stringify(template(false), null, 2); };
+$('#btn-tpl-bad').onclick = () => { $('#imp-text').value = JSON.stringify(template(true), null, 2); };
+$('#btn-import').onclick = async () => {
+  let body;
+  try { body = JSON.parse($('#imp-text').value); } catch (e) { $('#imp-msg').innerHTML = `<div class="msg bad">Could not parse JSON: ${esc(e.message)}</div>`; return; }
+  const r = await api('import_case', {}, body);
+  $('#imp-msg').innerHTML = r.ok
+    ? `<div class="msg ok">Success: ${esc(body.scenario_id || body.input?.scenario_id)} was inserted. See the "Scenario list" tab.</div>`
+    : `<div class="msg bad">HTTP ${r.status}: ${esc(r.data.error)}\n${esc(r.data.detail || '')}</div>`;
+  if (r.ok) scenarios = [];
+};
+
+go('dash');
+loadDash();
+</script>
+</body>
+</html>
