@@ -2,9 +2,11 @@
 
 A Comprehensive Technical Manual and Academic Specification for the University Database Systems Course.
 
-Based on the Smart Campus Energy Management Domain (adapted from BUP CSE Fest 2026 Hackathon Problem Specification).
-
-Target Platform: XAMPP Local Environment (MariaDB 10.4+ / MySQL 8.0+) with PHP 7.4+ / 8.x and Modern Web Browsers.
+**Author**: Md Showkotul Islam  
+**GitHub Repository**: [https://github.com/SaKin32/Gridwise_db](https://github.com/SaKin32/Gridwise_db)  
+**GitHub Profile**: [https://github.com/SaKin32](https://github.com/SaKin32)  
+**Domain Context**: Smart Campus Energy Management (adapted from BUP CSE Fest 2026 Hackathon Problem Specification).  
+**Target Platform**: XAMPP Local Environment (MariaDB 10.4+ / MySQL 8.0+) with PHP 7.4+ / 8.x and Modern Web Browsers.  
 
 ---
 
@@ -43,6 +45,7 @@ Target Platform: XAMPP Local Environment (MariaDB 10.4+ / MySQL 8.0+) with PHP 7
 10. Theoretical Edge Cases and Engineering Assumptions
 11. Complete Directory Tree Structure
 12. Viva Examination Guide and Academic Defense Questions
+13. Author Information and Project Credits
 
 ---
 
@@ -230,41 +233,143 @@ The schema was designed to satisfy Boyce-Codd Normal Form (BCNF) across all rela
 
 ### 3.3 Relational Entity-Relationship (ER) Topology
 
-```
-+------------------+         1:1          +-------------------+
-|     scenario     |----------------------|  battery_config   |
-+------------------+                      +-------------------+
-        |
-        | 1:24
-        +---------------------------------+
-        |                                 |
-+------------------+             +--------------------+
-|   hourly_input   |             |   operator_note    |
-+------------------+             +--------------------+
-                                          |
-                                          | 1:1
-                                 +--------------------+
-                                 |     directive      |
-                                 +--------------------+
-                                     |            |
-                         M:1         |            | 1:N
-             +--------------------+  |    +--------------------+
-             |   directive_type   |--+    |   directive_hour   |
-             +--------------------+       +--------------------+
+The database topology decouples operational inputs, semantic operator directives, and executable dispatch schedules into modular relational tiers.
 
-+------------------+         1:N          +--------------------+
-|     scenario     |----------------------|        plan        |
-+------------------+                      +--------------------+
-                                                    |
-                                                    | 1:24
-                                          +--------------------+
-                                          |    hourly_plan     |
-                                          +--------------------+
-                                                    |
-                                                    | Triggers (Log)
-                                          +--------------------+
-                                          |     plan_audit     |
-                                          +--------------------+
+#### Visual Architecture Diagram
+
+![GridWise Entity-Relationship Architecture Diagram](docs/ER_diagram.png)
+
+#### Functional Microgrid Relational Topology (Mermaid)
+
+```mermaid
+flowchart TD
+    %% Styling Configuration
+    classDef core fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef input fill:#0f172a,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef directive fill:#1e1b4b,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+    classDef execution fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef audit fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#f8fafc;
+
+    subgraph Problem_Domain ["Microgrid Problem Tier"]
+        SCN["scenario<br/>PK: scenario_id"]:::core
+        BAT["battery_config<br/>PK, FK: scenario_id<br/>(1:1 Hardware Profile)"]:::core
+        HIN["hourly_input<br/>PK: scenario_id, hour_no<br/>(1:24 Time Series Matrix)"]:::input
+    end
+
+    subgraph Operator_Advisories ["Advisory & Directive Tier"]
+        OPN["operator_note<br/>PK: note_id<br/>FK: scenario_id"]:::directive
+        DIR["directive<br/>PK: directive_id<br/>FK: note_id, type_code"]:::directive
+        DTY["directive_type<br/>PK: type_code<br/>(Domain Classification)"]:::directive
+        DHR["directive_hour<br/>PK, FK: directive_id, hour_no<br/>(1:N Active Hour Windows)"]:::directive
+    end
+
+    subgraph Plan_Execution ["Dispatch & Enforcement Tier"]
+        PLN["plan<br/>PK: plan_id<br/>FK: scenario_id"]:::execution
+        HPL["hourly_plan<br/>PK, FK: plan_id, hour_no<br/>(1:24 Hourly Dispatch Rows)"]:::execution
+        AUD["plan_audit<br/>PK: audit_id<br/>(BEFORE/AFTER Trigger Log)"]:::audit
+    end
+
+    %% Relational Cardinality Connections
+    SCN -->|"1 : 1 (Hardware Limits)"| BAT
+    SCN -->|"1 : 24 (Demand, Solar, Tariff)"| HIN
+    SCN -->|"1 : 1..3 (Advisory Notes)"| OPN
+    OPN -->|"1 : 1 (Interpreted Directive)"| DIR
+    DTY -->|"1 : N (Classification Lookup)"| DIR
+    DIR -->|"1 : N (Hourly Application)"| DHR
+
+    SCN -->|"1 : N (Evaluated Plans)"| PLN
+    PLN -->|"1 : 24 (Hourly Actions)"| HPL
+    HPL -.->|"Automated Audit Logging"| AUD
+```
+
+#### Detailed Entity-Relationship Diagram (Crow's Foot Notation)
+
+```mermaid
+erDiagram
+    scenario ||--|| battery_config : "1:1 battery configuration"
+    scenario ||--|{ hourly_input : "24 hourly forecasts"
+    scenario ||--|{ operator_note : "1-3 natural language notes"
+    operator_note ||--|| directive : "1 structured directive"
+    directive_type ||--o{ directive : "classification"
+    directive ||--o{ directive_hour : "applicable hours"
+    scenario ||--o{ plan : "evaluated plans"
+    plan ||--|{ hourly_plan : "24 hourly actions"
+    hourly_plan }o..o{ plan_audit : "trigger change log"
+
+    scenario {
+        varchar scenario_id PK
+        varchar label
+        enum source
+        timestamp created_at
+    }
+    battery_config {
+        varchar scenario_id PK,FK
+        decimal capacity_kwh
+        decimal initial_energy_kwh
+        decimal minimum_energy_kwh
+        decimal max_charge_kwh_per_hour
+        decimal max_discharge_kwh_per_hour
+    }
+    hourly_input {
+        varchar scenario_id PK,FK
+        tinyint hour_no PK
+        decimal demand_kwh
+        decimal solar_kwh
+        decimal tariff_bdt_per_kwh
+    }
+    operator_note {
+        int note_id PK
+        varchar scenario_id FK
+        tinyint note_index
+        varchar note_text
+    }
+    directive_type {
+        varchar type_code PK
+        varchar description
+        varchar param_name
+    }
+    directive {
+        int directive_id PK
+        int note_id FK
+        varchar type_code FK
+        tinyint applies
+        decimal factor
+        decimal minimum_energy_kwh
+        decimal max_grid_kwh
+        varchar explanation
+    }
+    directive_hour {
+        int directive_id PK,FK
+        tinyint hour_no PK
+    }
+    plan {
+        int plan_id PK
+        varchar scenario_id FK
+        varchar plan_name
+        varchar plan_summary
+        timestamp created_at
+    }
+    hourly_plan {
+        int plan_id PK,FK
+        tinyint hour_no PK
+        decimal grid_kwh
+        decimal solar_used_kwh
+        enum battery_action
+        decimal battery_kwh
+        decimal energy_after_kwh
+    }
+    plan_audit {
+        bigint audit_id PK
+        int plan_id
+        tinyint hour_no
+        enum action_type
+        decimal old_grid_kwh
+        decimal new_grid_kwh
+        varchar old_battery_action
+        varchar new_battery_action
+        varchar changed_by
+        timestamp changed_at
+    }
 ```
 
 ---
@@ -714,3 +819,14 @@ Below are standard questions examiners may ask regarding this project, along wit
 
 #### Question 6: "What advanced SQL features are demonstrated in your project?"
 **Answer:** The project implements Common Table Expressions (WITH clauses), Window Functions (`RANK()` for tariff categorization, `LAG()` for hourly battery state deltas, and `SUM(...) OVER (...)` for cumulative running costs), multi-table joins, subqueries using `NOT EXISTS`, and execution plan analysis via `EXPLAIN`.
+
+---
+
+## 13. Author Information and Project Credits
+
+- **Project Lead & Developer**: Md Showkotul Islam
+- **GitHub Profile**: [https://github.com/SaKin32](https://github.com/SaKin32)
+- **Repository URL**: [https://github.com/SaKin32/Gridwise_db](https://github.com/SaKin32/Gridwise_db)
+- **Contact Email**: mdshowkotulislam32@gmail.com
+- **Academic Course**: Database Management Systems (DBMS / Database System Course)
+- **Academic Focus**: Relational Modeling, Declarative Integrity, Procedural Triggers, and In-Database Optimization Constraints
