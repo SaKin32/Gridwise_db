@@ -27,7 +27,7 @@ A Comprehensive Technical Manual and Academic Specification for the University D
    - 5.1 System Prerequisites and Stack Requirements
    - 5.2 Step-by-Step Installation Walkthrough
    - 5.3 Web Dashboard and RESTful API Integration
-   - 5.4 Environment Connection Configuration
+   - 5.4 Temporary Online Live Preview (Cloud Tunneling Guide)
 6. System Verification, Testing Suite, and ACID Demonstration
    - 6.1 Automated Database Self-Test Harness (sp_selftest)
    - 6.2 Negative Constraint Testing and Exception Interception
@@ -545,6 +545,69 @@ Once deployed:
    - **Plan Inspector**: Interactive hourly dispatch charts (Grid, Solar, Battery Charge/Discharge, State of Charge).
    - **Directives**: Active directives and their physical parameter impacts.
    - **Import a case (API)**: Interactive API testing console with built-in templates.
+
+---
+
+### 5.4 Temporary Online Live Preview (Cloud Tunneling Guide)
+
+For academic evaluators, remote viva presentations, or peer code reviewers who need to interact with the live running system over the internet without deploying to external cloud databases, the system can be exposed via an encrypted Cloudflare Tunnel.
+
+This enables anyone globally to access the local XAMPP Apache web server, execute API calls, inspect charts, and test MySQL trigger rejections through a secure `https://` link.
+
+#### Case A: If Cloudflare Tunnel (`cloudflared`) Is Already Installed
+1. Ensure XAMPP **Apache** and **MySQL** services are running.
+2. Open Windows PowerShell or Command Prompt.
+3. Run the following command:
+   ```powershell
+   cloudflared tunnel --url http://localhost
+   ```
+4. Within a few seconds, Cloudflare generates a unique public HTTPS URL in the console output:
+   ```text
+   +--------------------------------------------------------------------------------------------+
+   |  Your quick Tunnel has been created! Visit it at:                                          |
+   |  https://<random-subdomain>.trycloudflare.com                                              |
+   +--------------------------------------------------------------------------------------------+
+   ```
+5. Append `/gridwise/index.html` to this URL and share or open in any web browser:
+   ```text
+   https://<random-subdomain>.trycloudflare.com/gridwise/index.html
+   ```
+
+#### Case B: If Cloudflare Tunnel (`cloudflared`) Is Not Installed
+
+##### Option 1: Fast Automated Installation via Windows Package Manager (Recommended)
+Open PowerShell as Administrator (or standard user) and execute:
+```powershell
+winget install Cloudflare.cloudflared
+```
+Once installation completes, run the tunnel command:
+```powershell
+cloudflared tunnel --url http://localhost
+```
+
+##### Option 2: Direct Standalone Binary Download (Zero-Installation Portable)
+1. Download the pre-compiled Windows executable (`cloudflared-windows-amd64.exe`) directly from the official Cloudflare GitHub repository:
+   `https://github.com/cloudflare/cloudflared/releases/latest`
+2. Rename the downloaded executable to `cloudflared.exe`.
+3. Open PowerShell in the directory containing `cloudflared.exe` and execute:
+   ```powershell
+   .\cloudflared.exe tunnel --url http://localhost
+   ```
+
+#### Case C: Alternative Node.js Live Tunnel (`localtunnel`)
+If Node.js and npm are installed on the workstation, an instant tunnel can be launched without installing any software:
+```powershell
+npx localtunnel --port 80
+```
+Open the generated HTTPS URL followed by `/gridwise/index.html`.
+
+#### Operational Best Practices for Live Presentations:
+1. **Active Terminal Session**: The terminal running the tunnel command must remain open (minimized) throughout the review session. Closing the terminal or pressing `Ctrl + C` immediately terminates external public access.
+2. **Preventing Disconnection via Laptop Sleep**: Laptops frequently suspend background network tunnels when entering idle sleep mode. During a presentation or evaluation, prevent system sleep while on AC power:
+   ```powershell
+   powercfg /change standby-timeout-ac 0
+   ```
+3. **Database Security**: Quick tunnels route traffic directly to local Apache port 80. They do not expose the raw MySQL port 3306 or root credentials to the public internet, ensuring safe temporary external inspection.
 
 ---
 
