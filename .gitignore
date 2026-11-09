@@ -16,3 +16,7 @@ Thumbs.db
 .vscode/
 *.swp
 
+# Local project docx files
+*.docx
+
+
