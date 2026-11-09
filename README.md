@@ -2,10 +2,17 @@
 
 A Comprehensive Technical Manual and Academic Specification for the University Database Systems Course.
 
-**Author**: Md Showkotul Islam  
+**Course**: CSE 207 : Database System (Intake 55)  
+**Institution**: Bangladesh University of Business and Technology (BUBT)  
+**Supervised By**: Md Shakil Ahmed, Lecturer, Dept. of CSE  
+**Submitted By**:  
+- Md Taimur Rahman (Student ID: 20255103046)  
+- Md Showkotul Islam (Student ID: 20255103058)  
+- Md Yousuf Ali (Student ID: 20255103059)  
+- Md Siam Khan (Student ID: 20255103069)  
+
 **GitHub Repository**: [https://github.com/SaKin32/Gridwise_db](https://github.com/SaKin32/Gridwise_db)  
-**GitHub Profile**: [https://github.com/SaKin32](https://github.com/SaKin32)  
-**Domain Context**: Smart Campus Energy Management (adapted from BUP CSE Fest 2026 Hackathon Problem Specification).  
+**Date of Submission**: 10 November, 2026  
 **Target Platform**: XAMPP Local Environment (MariaDB 10.4+ / MySQL 8.0+) with PHP 7.4+ / 8.x and Modern Web Browsers.  
 
 ---
@@ -148,7 +155,7 @@ Captures raw natural language advisories received from campus facility operators
 - `note_id` (INT UNSIGNED, PK, AUTO_INCREMENT): Surrogate note key.
 - `scenario_id` (VARCHAR(30), FK): References `scenario(scenario_id)` with `ON DELETE CASCADE`.
 - `note_index` (TINYINT UNSIGNED, NOT NULL): Zero-based sequence index within the scenario.
-- `note_text` (VARCHAR(500), NOT NULL): Raw natural language string.
+- `note_text` (VARCHAR(600), NOT NULL): Raw natural language string.
 - UNIQUE KEY: `(scenario_id, note_index)` guarantees single ordering per note.
 
 #### Table 5: `directive_type`
@@ -178,7 +185,7 @@ Header table for evaluated 24-hour microgrid dispatch schedules.
 - `plan_id` (INT UNSIGNED, PK, AUTO_INCREMENT): Surrogate plan identifier.
 - `scenario_id` (VARCHAR(30), FK): References `scenario(scenario_id)` with `ON DELETE CASCADE`.
 - `plan_name` (VARCHAR(60), NOT NULL): Name of the operating plan (e.g., 'optimal', 'baseline_heuristic').
-- `plan_summary` (TEXT, NULL): Textual summary of the dispatch strategy.
+- `plan_summary` (VARCHAR(700), NULL): Textual summary of the dispatch strategy.
 - `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP): Plan creation timestamp.
 - UNIQUE KEY: `(scenario_id, plan_name)`.
 
@@ -887,32 +894,26 @@ Below are standard questions examiners may ask regarding this project, along wit
 
 ## 13. Author Information & Project Credits
 
-### Project Core Team
+### Academic Submission Details
+- **Course**: CSE 207 : Database System (Intake 55)
+- **Institution**: Bangladesh University of Business and Technology (BUBT)
+- **Department**: Department of Computer Science and Engineering (CSE)
+- **Supervised By**: Md Shakil Ahmed, Lecturer, Dept. of CSE
+- **Date of Submission**: 10 November, 2026
+- **Repository URL**: [https://github.com/SaKin32/Gridwise_db](https://github.com/SaKin32/Gridwise_db)
 
-* **Lead:** Md Showkotul Islam
-  * **GitHub Profile:** [@SaKin32](https://github.com)
-  * **Email:** [mdshowkotulislam32@gmail.com](mailto:mdshowkotulislam32@gmail.com)
-  
-  **Co-Developers:**
-  1. **Md. Yousuf Ali**
-     * **GitHub Profile:** [@MrY0957](https://github.com)
-     * **Email:** [md.yousufali6785@gmail.com](mailto:md.yousufali6785@gmail.com)
-  2. **Md Siam Khan**
-     * **GitHub Profile:** [@siamkhan069](https://github.com/siamkhan069)
-     * **Email:** [Mskbsiam280@gmail.com](mailto:Mskbsiam280@gmail.com)
-  3. **Md. Taimur Rahman**
-     * **GitHub Profile:** [@Taimur-Rahman08](https://github.com/Taimur-Rahman08)
-     * **Email:** [taimurrahman08@gmail.com](mailto:taimurrahman08@gmail.com)
+### Project Core Team (Intake 55)
 
-### Repository & Project Links
-* **Official Repository:** [Gridwise_db](https://github.comGridwise_db)
+| Student Name | Student ID | Academic Role | GitHub Profile | Contact Email |
+|---|---|---|---|---|
+| Md Showkotul Islam | 20255103058 | Lead Developer & Maintainer | [@SaKin32](https://github.com/SaKin32) | [mdshowkotulislam32@gmail.com](mailto:mdshowkotulislam32@gmail.com) |
+| Md. Taimur Rahman | 20255103046 | Project Contributor | [@Taimur-Rahman08](https://github.com/Taimur-Rahman08) | [taimurrahman08@gmail.com](mailto:taimurrahman08@gmail.com) |
+| Md. Yousuf Ali | 20255103059 | Project Contributor | [@MrY0957](https://github.com/MrY0957) | [md.yousufali6785@gmail.com](mailto:md.yousufali6785@gmail.com) |
+| Md Siam Khan | 20255103069 | Project Contributor | [@siamkhan069](https://github.com/siamkhan069) | [Mskbsiam280@gmail.com](mailto:Mskbsiam280@gmail.com) |
 
-### Academic Context
-* **Course:** Database Management Systems (DBMS / Database System Course)
-* **Core Focus Areas:**
-  * Relational Modeling & Schema Design
-  * Declarative Integrity Constraints
-  * Procedural Triggers & Stored Procedures
-  * In-Database Performance Optimization
-
----
+### Academic Focus Areas
+- Relational Modeling & Normalization (1NF to BCNF)
+- Declarative Integrity & Domain CHECK Constraints
+- Procedural Triggers with SQLSTATE 45000 & Stored Procedures
+- In-Database Energy Balance Verification & Historical Audit Logging
+- Advanced SQL Analytics (Window Functions, CTEs, Index Optimization via EXPLAIN)
