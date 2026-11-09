@@ -901,8 +901,8 @@ Below are standard questions examiners may ask regarding this project, along wit
      * **GitHub Profile:** [@siamkhan069](https://github.com/siamkhan069)
      * **Email:** [Mskbsiam280@gmail.com](mailto:Mskbsiam280@gmail.com)
   3. **Md. Taimur Rahman**
-     * **GitHub Profile:** [@Taimur-Rahman08](https://github.com)
-     * **Email:** [taimurrahman08@gmail.com](mailto:email@example.com)
+     * **GitHub Profile:** [@Taimur-Rahman08](https://github.com/Taimur-Rahman08)
+     * **Email:** [taimurrahman08@gmail.com](mailto:taimurrahman08@gmail.com)
 
 ### Repository & Project Links
 * **Official Repository:** [Gridwise_db](https://github.comGridwise_db)
