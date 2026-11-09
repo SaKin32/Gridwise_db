@@ -1,18 +1,7 @@
 # GridWise: Relational Database Architecture and Enforcement Engine for Microgrid Energy Scheduling
 
 A Comprehensive Technical Manual and Academic Specification for the University Database Systems Course.
-
-**Course**: CSE 207 : Database System (Intake 55)  
-**Institution**: Bangladesh University of Business and Technology (BUBT)  
-**Supervised By**: Md Shakil Ahmed, Lecturer, Dept. of CSE  
-**Submitted By**:  
-- Md Taimur Rahman (Student ID: 20255103046)  
-- Md Showkotul Islam (Student ID: 20255103058)  
-- Md Yousuf Ali (Student ID: 20255103059)  
-- Md Siam Khan (Student ID: 20255103069)  
-
 **GitHub Repository**: [https://github.com/SaKin32/Gridwise_db](https://github.com/SaKin32/Gridwise_db)  
-**Date of Submission**: 10 November, 2026  
 **Target Platform**: XAMPP Local Environment (MariaDB 10.4+ / MySQL 8.0+) with PHP 7.4+ / 8.x and Modern Web Browsers.  
 
 ---
