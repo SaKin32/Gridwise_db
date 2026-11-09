@@ -883,22 +883,16 @@ Below are standard questions examiners may ask regarding this project, along wit
 
 ## 13. Author Information & Project Credits
 
-### Academic Submission Details
-- **Course**: CSE 207 : Database System (Intake 55)
-- **Institution**: Bangladesh University of Business and Technology (BUBT)
-- **Department**: Department of Computer Science and Engineering (CSE)
-- **Supervised By**: Md Shakil Ahmed, Lecturer, Dept. of CSE
-- **Date of Submission**: 10 November, 2026
 - **Repository URL**: [https://github.com/SaKin32/Gridwise_db](https://github.com/SaKin32/Gridwise_db)
 
 ### Project Core Team (Intake 55)
 
 | Student Name | Student ID | Academic Role | GitHub Profile | Contact Email |
 |---|---|---|---|---|
-| Md Showkotul Islam | 20255103058 | Lead Developer & Maintainer | [@SaKin32](https://github.com/SaKin32) | [mdshowkotulislam32@gmail.com](mailto:mdshowkotulislam32@gmail.com) |
-| Md. Taimur Rahman | 20255103046 | Project Contributor | [@Taimur-Rahman08](https://github.com/Taimur-Rahman08) | [taimurrahman08@gmail.com](mailto:taimurrahman08@gmail.com) |
-| Md. Yousuf Ali | 20255103059 | Project Contributor | [@MrY0957](https://github.com/MrY0957) | [md.yousufali6785@gmail.com](mailto:md.yousufali6785@gmail.com) |
-| Md Siam Khan | 20255103069 | Project Contributor | [@siamkhan069](https://github.com/siamkhan069) | [Mskbsiam280@gmail.com](mailto:Mskbsiam280@gmail.com) |
+| Md Showkotul Islam | Lead Developer & Maintainer | [@SaKin32](https://github.com/SaKin32) | [mdshowkotulislam32@gmail.com](mailto:mdshowkotulislam32@gmail.com) |
+| Md. Taimur Rahman | Project Contributor | [@Taimur-Rahman08](https://github.com/Taimur-Rahman08) | [taimurrahman08@gmail.com](mailto:taimurrahman08@gmail.com) |
+| Md. Yousuf Ali | Project Contributor | [@MrY0957](https://github.com/MrY0957) | [md.yousufali6785@gmail.com](mailto:md.yousufali6785@gmail.com) |
+| Md Siam Khan | Project Contributor | [@siamkhan069](https://github.com/siamkhan069) | [Mskbsiam280@gmail.com](mailto:Mskbsiam280@gmail.com) |
 
 ### Academic Focus Areas
 - Relational Modeling & Normalization (1NF to BCNF)
