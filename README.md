@@ -900,7 +900,7 @@ Below are standard questions examiners may ask regarding this project, along wit
   2. **Md Siam Khan**
      * **GitHub Profile:** [@siamkhan069](https://github.com/siamkhan069)
      * **Email:** [Mskbsiam280@gmail.com](mailto:Mskbsiam280@gmail.com)
-  3. **Md. Taimur Rahman **
+  3.   Md. Taimur Rahman
      * **GitHub Profile:** [@Taimur-Rahman08](https://github.com)
      * **Email:** [taimurrahman08@gmail.com](mailto:email@example.com)
 
