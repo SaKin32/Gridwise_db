@@ -885,11 +885,34 @@ Below are standard questions examiners may ask regarding this project, along wit
 
 ---
 
-## 13. Author Information and Project Credits
+## 13. Author Information & Project Credits
 
-- **Project Lead & Developer**: Md Showkotul Islam
-- **GitHub Profile**: [https://github.com/SaKin32](https://github.com/SaKin32)
-- **Repository URL**: [https://github.com/SaKin32/Gridwise_db](https://github.com/SaKin32/Gridwise_db)
-- **Contact Email**: mdshowkotulislam32@gmail.com
-- **Academic Course**: Database Management Systems (DBMS / Database System Course)
-- **Academic Focus**: Relational Modeling, Declarative Integrity, Procedural Triggers, and In-Database Optimization Constraints
+### Project Core Team
+
+* **Lead:** Md Showkotul Islam
+  * **GitHub Profile:** [@SaKin32](https://github.com)
+  * **Email:** [mdshowkotulislam32@gmail.com](mailto:mdshowkotulislam32@gmail.com)
+  
+  **Co-Developers:**
+  1. **Md. Yousuf Ali**
+     * **GitHub Profile:** [@MrY0957](https://github.com)
+     * **Email:** [md.yousufali6785@gmail.com](mailto:md.yousufali6785@gmail.com)
+  2. **[Name Here]**
+     * **GitHub Profile:** [@Username](https://github.com)
+     * **Email:** [email@example.com](mailto:email@example.com)
+  3. **[Name Here]**
+     * **GitHub Profile:** [@Username](https://github.com)
+     * **Email:** [email@example.com](mailto:email@example.com)
+
+### Repository & Project Links
+* **Official Repository:** [Gridwise_db](https://github.comGridwise_db)
+
+### Academic Context
+* **Course:** Database Management Systems (DBMS / Database System Course)
+* **Core Focus Areas:**
+  * Relational Modeling & Schema Design
+  * Declarative Integrity Constraints
+  * Procedural Triggers & Stored Procedures
+  * In-Database Performance Optimization
+
+---
