@@ -900,9 +900,9 @@ Below are standard questions examiners may ask regarding this project, along wit
   2. **Md Siam Khan**
      * **GitHub Profile:** [@siamkhan069](https://github.com/siamkhan069)
      * **Email:** [Mskbsiam280@gmail.com](mailto:Mskbsiam280@gmail.com)
-  3. **[Name Here]**
-     * **GitHub Profile:** [@Username](https://github.com)
-     * **Email:** [email@example.com](mailto:email@example.com)
+  3. **Md. Taimur Rahman **
+     * **GitHub Profile:** [@Taimur-Rahman08](https://github.com)
+     * **Email:** [taimurrahman08@gmail.com](mailto:email@example.com)
 
 ### Repository & Project Links
 * **Official Repository:** [Gridwise_db](https://github.comGridwise_db)
