@@ -887,7 +887,7 @@ Below are standard questions examiners may ask regarding this project, along wit
 
 ### Project Core Team (Intake 55)
 
-| Student Name | Student ID | Academic Role | GitHub Profile | Contact Email |
+| Student Name | Academic Role | GitHub Profile | Contact Email |
 |---|---|---|---|---|
 | Md Showkotul Islam | Lead Developer & Maintainer | [@SaKin32](https://github.com/SaKin32) | [mdshowkotulislam32@gmail.com](mailto:mdshowkotulislam32@gmail.com) |
 | Md. Taimur Rahman | Project Contributor | [@Taimur-Rahman08](https://github.com/Taimur-Rahman08) | [taimurrahman08@gmail.com](mailto:taimurrahman08@gmail.com) |
