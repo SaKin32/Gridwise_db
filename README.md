@@ -888,11 +888,11 @@ Below are standard questions examiners may ask regarding this project, along wit
 ### Project Core Team (Intake 55)
 
 | Student Name | Academic Role | GitHub Profile | Contact Email |
-|---|---|---|---|---|
-| Md Showkotul Islam | Lead Developer & Maintainer | [@SaKin32](https://github.com/SaKin32) | [mdshowkotulislam32@gmail.com](mailto:mdshowkotulislam32@gmail.com) |
-| Md. Taimur Rahman | Project Contributor | [@Taimur-Rahman08](https://github.com/Taimur-Rahman08) | [taimurrahman08@gmail.com](mailto:taimurrahman08@gmail.com) |
-| Md. Yousuf Ali | Project Contributor | [@MrY0957](https://github.com/MrY0957) | [md.yousufali6785@gmail.com](mailto:md.yousufali6785@gmail.com) |
-| Md Siam Khan | Project Contributor | [@siamkhan069](https://github.com/siamkhan069) | [Mskbsiam280@gmail.com](mailto:Mskbsiam280@gmail.com) |
+|---|---|---|---|
+| Md Showkotul Islam | Lead Developer & Maintainer | [@SaKin32](https://github.com/SaKin32) | mdshowkotulislam32@gmail.com |
+| Md. Taimur Rahman | Project Contributor | [@Taimur-Rahman08](https://github.com/Taimur-Rahman08) | taimurrahman08@gmail.com |
+| Md. Yousuf Ali | Project Contributor | [@MrY0957](https://github.com/MrY0957) | md.yousufali6785@gmail.com |
+| Md Siam Khan | Project Contributor | [@siamkhan069](https://github.com/siamkhan069) | Mskbsiam280@gmail.com |
 
 ### Academic Focus Areas
 - Relational Modeling & Normalization (1NF to BCNF)
